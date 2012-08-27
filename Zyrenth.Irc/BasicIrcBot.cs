@@ -21,8 +21,7 @@ namespace Zyrenth.Irc
 
         #region Chat Command Processors
 
-        private void ProcessChatCommandHelp(IrcClient client, /*IIrcMessageSource source,
-            IList<IIrcMessageTarget> targets, */string command, IList<string> parameters)
+        private void ProcessChatCommandHelp(IrcClient client, IrcMessageData data, string command, IList<string> parameters)
         {
             if (parameters.Count != 0)
                 throw new InvalidCommandParametersException(1);
