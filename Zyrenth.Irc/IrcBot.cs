@@ -232,7 +232,6 @@ namespace Zyrenth.Irc
 				client.Login(nick, user, dunno, username, password);
 				if (!connectedEvent.Wait(10000))
 				{
-
 					ConsoleUtilities.WriteError("Connection to '{0}' timed out.", server);
 					return;
 				}
@@ -402,29 +401,23 @@ namespace Zyrenth.Irc
 
 		protected abstract void OnChannelNotice(IrcClient client, IrcMessageData data);
 
+		protected abstract void OnChannelModeChange(IrcClient client, IrcMessageData data);
+
 		protected abstract void OnQueryAction(IrcClient client, IrcMessageData data);
 
 		protected abstract void OnQueryMessage(IrcClient client, IrcMessageData data);
 
 		protected abstract void OnQueryNotice(IrcClient client, IrcMessageData data);
 
+		protected abstract void OnModeChange(IrcClient client, IrcMessageData data);
+
 		/*protected abstract void OnLocalUserJoinedChannel(IrcLocalUser localUser, IrcChannelEventArgs e);
 
 		protected abstract void OnLocalUserLeftChannel(IrcLocalUser localUser, IrcChannelEventArgs e);
 
-		protected abstract void OnLocalUserNoticeReceived(IrcLocalUser localUser, IrcMessageEventArgs e);
-
-		protected abstract void OnLocalUserMessageReceived(IrcLocalUser localUser, IrcMessageEventArgs e);
-
 		protected abstract void OnChannelUserJoined(IrcChannel channel, IrcChannelUserEventArgs e);
 
-		protected abstract void OnChannelUserLeft(IrcChannel channel, IrcChannelUserEventArgs e);
-
-		protected abstract void OnChannelUserModesChanged(IrcChannelUser user, EventArgs e);
-
-		protected abstract void OnChannelNoticeReceived(IrcChannel channel, IrcMessageEventArgs e);
-
-		protected abstract void OnChannelMessageReceived(IrcChannel channel, IrcMessageEventArgs e);*/
+		protected abstract void OnChannelUserLeft(IrcChannel channel, IrcChannelUserEventArgs e);*/
 
 		#region IRC Client Event Handlers
 
@@ -449,13 +442,13 @@ namespace Zyrenth.Irc
 
 			client.OnChannelAction += IrcClient_OnChannelAction;
 			client.OnChannelMessage += IrcClient_OnChannelMessage;
-			client.OnChannelNotice += IrcCLient_OnChannelNotice;
+			client.OnChannelNotice += IrcClient_OnChannelNotice;
 			client.OnChannelModeChange += IrcClient_OnChannelModeChange;
 
 			client.OnQueryAction += IrcClient_OnQueryAction;
 			client.OnQueryMessage += IrcClient_OnQueryMessage;
-			client.OnQueryNotice += IrcCLient_OnQueryNotice;
-			//client.OnChannelModeChange += IrcClient_OnChannelModeChange;
+			client.OnQueryNotice += IrcClient_OnQueryNotice;
+			client.OnModeChange += IrcClient_OnModeChange;
 
 			client.OnJoin += IrcClient_OnJoin;
 			client.OnPart += IrcClient_OnPart;
@@ -477,27 +470,25 @@ namespace Zyrenth.Irc
 		{
 			var client = (IrcClient)sender;
 
-			OnChannelMessage(client, e.Data);
-
 			// Read message and process if it is chat command.
 			if (ReadChatCommand(client, e.Data))
 				return;
 
-			//OnLocalUserMessageReceived(localUser, e);
+			OnChannelMessage(client, e.Data);
 		}
 
-		private void IrcCLient_OnChannelNotice(object sender, IrcEventArgs e)
+		private void IrcClient_OnChannelNotice(object sender, IrcEventArgs e)
 		{
-			//var localUser = (IrcLocalUser)sender;
+			var client = (IrcClient)sender;
 
-			//OnLocalUserNoticeReceived(localUser, e);
+			OnChannelNotice(client, e.Data);
 		}
 
 		private void IrcClient_OnChannelModeChange(object sender, IrcEventArgs e)
 		{
-			//var localUser = (IrcLocalUser)sender;
+			var client = (IrcClient)sender;
 
-			//OnLocalUserNoticeReceived(localUser, e);
+			OnChannelModeChange(client, e.Data);
 		}
 
 		private void IrcClient_OnJoin(object sender, IrcEventArgs e)
@@ -534,6 +525,7 @@ namespace Zyrenth.Irc
 			e.Channel.NoticeReceived -= IrcClient_Channel_NoticeReceived;
 
 			OnLocalUserJoinedChannel(localUser, e);*/
+			
 		}
 
 		private void IrcClient_OnQueryAction(object sender, IrcEventArgs e)
@@ -547,19 +539,25 @@ namespace Zyrenth.Irc
 		{
 			var client = (IrcClient)sender;
 
-			OnQueryMessage(client, e.Data);
-
 			// Read message and process if it is chat command.
 			if (ReadChatCommand(client, e.Data))
 				return;
 
-			//OnLocalUserMessageReceived(localUser, e);
+			OnQueryMessage(client, e.Data);
 		}
 
-		private void IrcCLient_OnQueryNotice(object sender, IrcEventArgs e)
+		private void IrcClient_OnQueryNotice(object sender, IrcEventArgs e)
 		{
-			//var localUser = (IrcLocalUser)sender;
+			var client = (IrcClient)sender;
 
+			OnQueryNotice(client, e.Data);
+		}
+
+		private void IrcClient_OnModeChange(object sender, IrcEventArgs e)
+		{
+			var client = (IrcClient)sender;
+
+			OnModeChange(client, e.Data);
 			//OnLocalUserNoticeReceived(localUser, e);
 		}
 
