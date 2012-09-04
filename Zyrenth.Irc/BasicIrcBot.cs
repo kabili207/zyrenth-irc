@@ -23,15 +23,14 @@ namespace Zyrenth.Irc
 
 		private void ProcessChatCommandHelp(IrcClient client, IrcMessageData data, string command, IList<string> parameters)
 		{
-			if (parameters.Count != 0)
-				throw new InvalidCommandParametersException(1);
+			//if (parameters.Count != 0)
+			//	throw new InvalidCommandParametersException(1);
 
 			// List all commands recognized by this bot.
-			/*var replyTarget = GetDefaultReplyTarget(client, source, targets);
-			client.LocalUser.SendMessage(replyTarget, "I recognize the following commands:");
-			client.LocalUser.SendMessage(replyTarget, string.Join(", ",
+			client.SendMessage(SendType.Message, data.Channel, "I recognize the following commands:");
+			client.SendMessage(SendType.Message, data.Channel, string.Join(", ",
 				this.ChatCommandProcessors.Select(kvPair => kvPair.Key)));
-			client.LocalUser.SendMessage(replyTarget, "All commands must be prefixed with '.'");*/
+			client.SendMessage(SendType.Message, data.Channel, "All commands must be prefixed with '.'");
 		}
 
 		#endregion
