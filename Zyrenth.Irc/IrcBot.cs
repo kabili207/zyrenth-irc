@@ -217,7 +217,7 @@ namespace Zyrenth.Irc
 		public void Connect(string server, int port, RegistrationInfo info)
 		{
 			// Create new IRC client and connect to given server.
-			var client = new IrcClient();
+			var client = new IrcFeatures();
 
 			client.ActiveChannelSyncing = true;
 
@@ -230,11 +230,14 @@ namespace Zyrenth.Irc
 			using (var connectedEvent = new ManualResetEventSlim(false))
 			{
 				client.OnConnected += (sender2, e2) => connectedEvent.Set();
-				client.Connect(server, port);
-				client.Login(info.NickNames, info.RealName, 0, info.UserName, info.Password);
-				if (!connectedEvent.Wait(10000))
+				try
 				{
-					ConsoleUtilities.WriteError("Connection to '{0}' timed out.", server);
+					client.Connect(server, port);
+					client.Login(info.NickNames, info.RealName, 0, info.UserName, info.Password);
+				}
+				catch (Exception ex)
+				{
+					ConsoleUtilities.WriteError("Connection to '{0}' timed out. {1}", server, ex.Message);
 					return;
 				}
 			}
