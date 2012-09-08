@@ -232,8 +232,8 @@ namespace Zyrenth.Irc
 				client.OnConnected += (sender2, e2) => connectedEvent.Set();
 				try
 				{
-					client.Connect(server, port);
-					client.Login(info.NickNames, info.RealName, 0, info.UserName, info.Password);
+				client.Connect(server, port);
+				client.Login(info.NickNames, info.RealName, 0, info.UserName, info.Password);
 				}
 				catch (Exception ex)
 				{
@@ -455,6 +455,8 @@ namespace Zyrenth.Irc
 			client.OnKick += IrcClient_OnKick;
 			client.OnQuit += IrcClient_OnQuit;
 
+			client.OnNames += IrcClient_OnNames;
+
 			Console.Beep();
 
 			OnClientRegistered(client);
@@ -480,6 +482,8 @@ namespace Zyrenth.Irc
 			client.OnPart -= IrcClient_OnPart;
 			client.OnKick -= IrcClient_OnKick;
 			client.OnQuit -= IrcClient_OnQuit;
+
+			client.OnNames -= IrcClient_OnNames;
 
 			OnClientDisconnect(client);
 		}
@@ -519,9 +523,21 @@ namespace Zyrenth.Irc
 		private void IrcClient_OnJoin(object sender, JoinEventArgs e)
 		{
 			var client = (IrcClient)sender;
-
+			if (!client.IsMe(e.Who))
+				    {
+				        client.RfcWhois(e.Who);
+				    }
 			OnJoin(client, e);
 		}
+
+
+		private void IrcClient_OnNames(object sender, IrcEventArgs e)
+		{
+			var client = (IrcClient)sender;
+			var chan = client.GetChannel(e.Data.Channel);
+			    client.RfcWhois(chan.Users.Values.OfType<ChannelUser>().Select(x => x.IrcUser.Nick).ToArray());
+		}
+
 
 		private void IrcClient_OnPart(object sender, PartEventArgs e)
 		{
@@ -586,58 +602,11 @@ namespace Zyrenth.Irc
 			//OnLocalUserNoticeReceived(localUser, e);
 		}
 
-		/*private void IrcClient_Channel_UserJoined(object sender, IrcChannelUserEventArgs e)
-		{
-			var channel = (IrcChannel)sender;
-			e.ChannelUser.ModesChanged += IrcClient_ChannelUser_ModesChanged;
-			OnChannelUserJoined(channel, e);
-		}
-
-		private void IrcClient_Channel_UserLeft(object sender, IrcChannelUserEventArgs e)
-		{
-			var channel = (IrcChannel)sender;
-			e.ChannelUser.ModesChanged -= IrcClient_ChannelUser_ModesChanged;
-			OnChannelUserLeft(channel, e);
-		}*/
-
-		/*void IrcClient_ChannelUser_ModesChanged(object sender, EventArgs e)
-		{
-			var user = (IrcChannelUser)sender;
-			
-			OnChannelUserModesChanged(user, e);
-		}
 		
-        private void IrcClient_Channel_NoticeReceived(object sender, IrcMessageEventArgs e)
-        {
-            var channel = (IrcChannel)sender;
-
-            OnChannelNoticeReceived(channel, e);
-        }
-
-        private void IrcClient_Channel_MessageReceived(object sender, IrcMessageEventArgs e)
-        {
-            var channel = (IrcChannel)sender;
-
-            if (e.Source is IrcUser)
-            {
-                // Read message and process if it is chat command.
-                if (ReadChatCommand(channel.Client, e))
-                    return;
-            }
-
-            OnChannelMessageReceived(channel, e);
-        }*/
 
 		#endregion
 
-		/*protected IList<IIrcMessageTarget> GetDefaultReplyTarget(IrcClient client, IIrcMessageSource source,
-            IList<IIrcMessageTarget> targets)
-        {
-            if (targets.Contains(client.LocalUser) && source is IIrcMessageTarget)
-                return new[] { (IIrcMessageTarget)source };
-            else
-                return targets;
-        }*/
+
 
 		protected IrcClient GetClientFromServerNameMask(string serverNameMask)
 		{
