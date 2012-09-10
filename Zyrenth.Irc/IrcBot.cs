@@ -614,6 +614,14 @@ namespace Zyrenth.Irc
 				Regex.IsMatch(c.Address, serverNameMask, RegexOptions.IgnoreCase));
 		}
 
+		protected IrcClient GetClientFromConnectHostname(string serverNameMask)
+		{
+			IrcClient kvp;
+			if (this.clientPairs.TryGetValue(serverNameMask, out kvp))
+				return kvp;
+			return null;
+		}
+
 		protected delegate void ChatCommandProcessor(IrcClient client, IrcMessageData data, string command, IList<string> parameters);
 
 		protected delegate void CommandProcessor(string command, IList<string> parameters);
