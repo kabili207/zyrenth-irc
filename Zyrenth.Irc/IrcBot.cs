@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -220,11 +221,15 @@ namespace Zyrenth.Irc
 			var client = new IrcFeatures();
 
 			client.ActiveChannelSyncing = true;
+			client.SupportNonRfc = true;
 
 			// client.FloodPreventer = new IrcStandardFloodPreventer(4, 2000);
 			client.OnConnected += IrcClient_Connected;
 			client.OnDisconnected += IrcClient_Disconnected;
 			client.OnRegistered += IrcClient_Registered;
+			
+			client.OnReadLine += OnRawMessage;
+			client.OnWriteLine += HandleClientOnWriteLine;
 
 			// Wait until connection has succeeded or timed out.
 			using (var connectedEvent = new ManualResetEventSlim(false))
@@ -249,6 +254,19 @@ namespace Zyrenth.Irc
 			Console.Out.WriteLine("Now connected to '{0}'.", server);
 		}
 
+		void HandleClientOnWriteLine (object sender, WriteLineEventArgs e)
+		{
+			
+			System.Console.WriteLine("<< " + e.Line);
+		}
+		
+		// this method will get all IRC messages
+		public void OnRawMessage(object sender, ReadLineEventArgs e)
+		{
+			System.Console.WriteLine(">> " + e.Line);
+		}
+		
+		
 		/// <summary>
 		/// Disconnects from the specified server.
 		/// </summary>
@@ -524,9 +542,13 @@ namespace Zyrenth.Irc
 		{
 			var client = (IrcClient)sender;
 			if (!client.IsMe(e.Who))
-				    {
-				        client.RfcWhois(e.Who);
-				    }
+		    {
+		        //client.RfcWhois(e.Who);
+		    }
+			else
+			{
+				//client.RfcNames(e.Channel);
+			}
 			OnJoin(client, e);
 		}
 
@@ -534,8 +556,8 @@ namespace Zyrenth.Irc
 		private void IrcClient_OnNames(object sender, IrcEventArgs e)
 		{
 			var client = (IrcClient)sender;
-			var chan = client.GetChannel(e.Data.Channel);
-			    client.RfcWhois(chan.Users.Values.OfType<ChannelUser>().Select(x => x.IrcUser.Nick).ToArray());
+			//var chan = client.GetChannel(e.Data.Channel);
+			//    client.RfcWhois(chan.Users.Values.OfType<ChannelUser>().Select(x => x.IrcUser.Nick).ToArray());
 		}
 
 
