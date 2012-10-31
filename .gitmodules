@@ -1,0 +1,3 @@
+[submodule "contrib/SmartIrc4net"]
+	path = contrib/SmartIrc4net
+	url = git://github.com/kabili207/SmartIrc4net.git
