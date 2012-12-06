@@ -215,11 +215,11 @@ namespace Zyrenth.Irc
 		/// <param name='registrationInfo'>
 		/// Registration info.
 		/// </param>
-		public void Connect(string server, int port, RegistrationInfo info)
+		public void Connect(string server, int port, bool isSecure, RegistrationInfo info)
 		{
 			// Create new IRC client and connect to given server.
 			var client = new IrcFeatures();
-
+			client.UseSsl = isSecure;
 			client.ActiveChannelSyncing = true;
 			client.SupportNonRfc = true;
 
@@ -228,8 +228,8 @@ namespace Zyrenth.Irc
 			client.OnDisconnected += IrcClient_Disconnected;
 			client.OnRegistered += IrcClient_Registered;
 			
-			client.OnReadLine += OnRawMessage;
-			client.OnWriteLine += HandleClientOnWriteLine;
+			//client.OnReadLine += OnRawMessage;
+			//client.OnWriteLine += HandleClientOnWriteLine;
 
 			// Wait until connection has succeeded or timed out.
 			using (var connectedEvent = new ManualResetEventSlim(false))
